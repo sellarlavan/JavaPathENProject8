@@ -1,9 +1,7 @@
 package com.openclassrooms.tourguide.user;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import gpsUtil.location.VisitedLocation;
 import tripPricer.Provider;
@@ -14,8 +12,12 @@ public class User {
 	private String phoneNumber;
 	private String emailAddress;
 	private Date latestLocationTimestamp;
-	private List<VisitedLocation> visitedLocations = new ArrayList<>();
-	private List<UserReward> userRewards = new ArrayList<>();
+	//private List<VisitedLocation> visitedLocations = new ArrayList<>();
+	//private List<UserReward> userRewards = new ArrayList<>();
+
+	private List<VisitedLocation> visitedLocations = new CopyOnWriteArrayList<>();
+	private List<UserReward> userRewards = new CopyOnWriteArrayList<>();
+
 	private UserPreferences userPreferences = new UserPreferences();
 	private List<Provider> tripDeals = new ArrayList<>();
 	public User(UUID userId, String userName, String phoneNumber, String emailAddress) {
@@ -69,12 +71,25 @@ public class User {
 		visitedLocations.clear();
 	}
 	
-	public void addUserReward(UserReward userReward) {
+	/*public void addUserReward(UserReward userReward) {
 		if(userRewards.stream().filter(r -> !r.attraction.attractionName.equals(userReward.attraction)).count() == 0) {
 			userRewards.add(userReward);
 		}
+	}*/
+
+	public void addUserReward(UserReward userReward) {
+		boolean alreadyRewarded = userRewards.stream()
+				.anyMatch(r ->
+						r.attraction.attractionName
+								.equals(userReward.attraction.attractionName)
+				);
+
+		if (!alreadyRewarded) {
+			userRewards.add(userReward);
+		}
 	}
-	
+
+
 	public List<UserReward> getUserRewards() {
 		return userRewards;
 	}

@@ -1,6 +1,10 @@
 package com.openclassrooms.tourguide.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Service;
 
@@ -22,7 +26,11 @@ public class RewardsService {
 	private int attractionProximityRange = 200;
 	private final GpsUtil gpsUtil;
 	private final RewardCentral rewardsCentral;
-	
+
+	private static final ExecutorService REWARDS_EXECUTOR =
+			Executors.newFixedThreadPool(100);
+
+
 	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {
 		this.gpsUtil = gpsUtil;
 		this.rewardsCentral = rewardCentral;
@@ -50,7 +58,26 @@ public class RewardsService {
 			}
 		}
 	}
-	
+
+	public void calculateRewardsForAllUsers(List<User> users) {
+
+		List<CompletableFuture<Void>> futures = users.stream()
+				.map(user ->
+						CompletableFuture.runAsync(
+								() -> calculateRewards(user),
+								REWARDS_EXECUTOR
+						)
+				)
+				.toList();
+
+		CompletableFuture
+				.allOf(futures.toArray(new CompletableFuture[0]))
+				.join();
+	}
+
+
+
+
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
 		return getDistance(attraction, location) > attractionProximityRange ? false : true;
 	}
@@ -62,7 +89,13 @@ public class RewardsService {
 	private int getRewardPoints(Attraction attraction, User user) {
 		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
-	
+
+	public int getAttractionRewardPoints(Attraction attraction, User user) {
+		return getRewardPoints(attraction, user);
+	}
+
+
+
 	public double getDistance(Location loc1, Location loc2) {
         double lat1 = Math.toRadians(loc1.latitude);
         double lon1 = Math.toRadians(loc1.longitude);
