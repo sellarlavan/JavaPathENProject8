@@ -20,11 +20,16 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Move to TourGuide project
+        run: cd TourGuide
+
       - name: Install local JAR dependencies
+        working-directory: TourGuide
         run: |
           mvn install:install-file -Dfile=libs/gpsUtil.jar -DgroupId=gpsUtil -DartifactId=gpsUtil -Dversion=1.0.0 -Dpackaging=jar
           mvn install:install-file -Dfile=libs/RewardCentral.jar -DgroupId=rewardCentral -DartifactId=rewardCentral -Dversion=1.0.0 -Dpackaging=jar
           mvn install:install-file -Dfile=libs/TripPricer.jar -DgroupId=tripPricer -DartifactId=tripPricer -Dversion=1.0.0 -Dpackaging=jar
 
       - name: Build and run tests
+        working-directory: TourGuide
         run: mvn clean install
