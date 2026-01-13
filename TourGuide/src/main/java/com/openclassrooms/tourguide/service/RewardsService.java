@@ -1,6 +1,5 @@
 package com.openclassrooms.tourguide.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -29,7 +28,6 @@ public class RewardsService {
 
 	private static final ExecutorService REWARDS_EXECUTOR =
 			Executors.newFixedThreadPool(100);
-
 
 	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {
 		this.gpsUtil = gpsUtil;
@@ -75,9 +73,6 @@ public class RewardsService {
 				.join();
 	}
 
-
-
-
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
 		return getDistance(attraction, location) > attractionProximityRange ? false : true;
 	}
@@ -93,8 +88,6 @@ public class RewardsService {
 	public int getAttractionRewardPoints(Attraction attraction, User user) {
 		return getRewardPoints(attraction, user);
 	}
-
-
 
 	public double getDistance(Location loc1, Location loc2) {
         double lat1 = Math.toRadians(loc1.latitude);

@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -32,6 +34,9 @@ public class TourGuideService {
 	private final TripPricer tripPricer = new TripPricer();
 	public final Tracker tracker;
 	boolean testMode = true;
+	private static final ExecutorService GPS_EXECUTOR =
+			Executors.newFixedThreadPool(100);
+
 
 	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
 		this.gpsUtil = gpsUtil;
@@ -93,7 +98,7 @@ public class TourGuideService {
 
 		List<CompletableFuture<Void>> futures = users.stream()
 				.map(user ->
-						CompletableFuture.runAsync(() -> trackUserLocation(user))
+						CompletableFuture.runAsync(() -> trackUserLocation(user), GPS_EXECUTOR)
 				)
 				.toList();
 
@@ -101,18 +106,6 @@ public class TourGuideService {
 				.allOf(futures.toArray(new CompletableFuture[0]))
 				.join();
 	}
-
-
-	/*public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-		List<Attraction> nearbyAttractions = new ArrayList<>();
-		for (Attraction attraction : gpsUtil.getAttractions()) {
-			if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
-				nearbyAttractions.add(attraction);
-			}
-		}
-
-		return nearbyAttractions;
-	}*/
 
 	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
 
@@ -126,7 +119,6 @@ public class TourGuideService {
 				.limit(5)
 				.toList();
 	}
-
 
 	private void addShutDownHook() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {

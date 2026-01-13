@@ -1,7 +1,11 @@
 package com.openclassrooms.tourguide.dto;
 
 import gpsUtil.location.Location;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
+@Data
+@AllArgsConstructor
 public class NearByAttractionDTO {
 
     public String attractionName;
@@ -10,17 +14,4 @@ public class NearByAttractionDTO {
     public double distance;
     public int rewardPoints;
 
-    public NearByAttractionDTO(
-            String attractionName,
-            Location attractionLocation,
-            Location userLocation,
-            double distance,
-            int rewardPoints
-    ) {
-        this.attractionName = attractionName;
-        this.attractionLocation = attractionLocation;
-        this.userLocation = userLocation;
-        this.distance = distance;
-        this.rewardPoints = rewardPoints;
-    }
 }
